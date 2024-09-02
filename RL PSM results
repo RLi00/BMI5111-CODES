@@ -1,0 +1,26 @@
+Final number of features retained: 67
+Final features: ['NUM_PREV_TX', 'MELD_DIFF_REASON_CD', 'ABO', 'FUNC_STAT_TCR', 'DIAB', 'REM_CD', 'EXC_DIAG_ID', 'ETHNICITY', 'REGION', 'CITIZENSHIP', 'ARTIFICIAL_LI_TCR', 'PORTAL_VEIN_TCR', 'INIT_ENCEPH', 'INIT_MELD_PELD_LAB_SCORE', 'PRI_PAYMENT_TRR', 'MALIG_TRR', 'ARTIFICIAL_LI_TRR', 'OTH_LIFE_SUP_TRR', 'PORTAL_VEIN_TRR', 'TIPSS_TRR', 'GTIME', 'PSTATUS', 'DA1', 'DA2', 'DB2', 'DDR1', 'DDR2', 'RB2', 'RDR2', 'TRTREJ1Y', 'AGE_DON', 'COD_CAD_DON', 'DEATH_MECH_DON', 'ETHCAT_DON', 'NON_HRT_DON', 'BLOOD_INF_DON', 'OTHER_INF_DON', 'PT_STEROIDS_DON', 'TBILI_DON', 'VASODIL_DON', 'CLIN_INFECT_DON', 'HIST_CIG_DON', 'HIST_COCAINE_DON', 'DIABETES_DON', 'HIST_HYPERTENS_DON', 'INTRACRANIAL_CANCER_DON', 'HIST_CANCER_DON', 'TBILI_TX', 'EXC_EVER', 'HEP_DENOVO', 'HEP_RECUR', 'RECUR_DISEASE', 'REJ_ACUTE', 'INFECT', 'DIFFUSE_CHOLANG', 'OTHER_VASC_THROMB', 'PRI_NON_FUNC', 'REJ_CHRONIC', 'GRF_STAT', 'LOS', 'DISTANCE', 'RECOV_OUT_US', 'TATTOOS', 'LI_BIOPSY', 'CARDARREST_NEURO', 'MACRO_FAT_LI_DON', 'HISTORY_MI_DON']
+
+Classification Report:
+              precision    recall  f1-score   support
+
+         0.0       0.92      0.79      0.85      1045
+         1.0       0.49      0.75      0.59       278
+
+    accuracy                           0.78      1323
+   macro avg       0.71      0.77      0.72      1323
+weighted avg       0.83      0.78      0.80      1323
+
+Model Accuracy: 0.783068783068783
+
+Classification Report after adjusting threshold to 0.3:
+              precision    recall  f1-score   support
+
+         0.0       0.95      0.65      0.77      1045
+         1.0       0.40      0.88      0.55       278
+
+    accuracy                           0.70      1323
+   macro avg       0.68      0.77      0.66      1323
+weighted avg       0.84      0.70      0.73      1323
+
+Adjusted Model Accuracy: 0.6976568405139834
