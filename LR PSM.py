@@ -30,7 +30,7 @@ df = df.select_dtypes(include=[int, float])
 feature_threshold = 0.7
 df = df.dropna(thresh=int((1 - feature_threshold) * len(df)), axis=1)
 
-# Step 2: Remove samples with more than 40% missing values, 但保留已经处理的列
+# Step 2: Remove samples with more than 40% missing values, but keep the already processed columns
 sample_threshold = 0.4
 df = df.dropna(thresh=int((1 - sample_threshold) * df.shape[1]), axis=0)
 
@@ -53,12 +53,14 @@ selected_features = X.columns[(lasso.coef_ != 0)]
 # Re-create feature matrix with selected features
 X_selected = df_imputed[selected_features]
 
+
 # VIF calculation and removing features with high VIF
 def calculate_vif(X):
     vif_data = pd.DataFrame()
     vif_data["Feature"] = X.columns
     vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
     return vif_data
+
 
 # Iteratively remove features with VIF > 10
 max_vif = 10
@@ -71,7 +73,7 @@ while True:
     else:
         break
 
-# 输出最终保留的特征数量和名称
+# Output final retained features
 print(f"Final number of features retained: {X_selected.shape[1]}")
 print(f"Final features: {X_selected.columns.tolist()}")
 
@@ -80,19 +82,6 @@ logit_model = LogisticRegression(max_iter=10000)
 logit_model.fit(X_selected, y)
 df_imputed['propensity_score'] = logit_model.predict_proba(X_selected)[:, 1]
 
-# Rank features by importance
-feature_importance = pd.DataFrame({
-    'Feature': X_selected.columns,
-    'Importance': np.abs(logit_model.coef_[0])
-})
-feature_importance = feature_importance.sort_values(by='Importance', ascending=False)
-
-# 保留前40个最重要的特征
-top_40_features = feature_importance.head(40)['Feature'].tolist()
-X_selected = X_selected[top_40_features]
-
-print("\nTop 40 feature importance (ranked):")
-print(feature_importance.head(40))
 
 # 1:n matching function
 def match_propensity_scores(treated, control, score_col, n_matches):
@@ -106,6 +95,7 @@ def match_propensity_scores(treated, control, score_col, n_matches):
     matched = pd.concat([treated, matched_control], axis=0)
     return matched
 
+
 # Separate treated and control groups
 treated = df_imputed[df_imputed['ARGININE_DON'] == 1].copy()
 control = df_imputed[df_imputed['ARGININE_DON'] == 0].copy()
@@ -116,8 +106,8 @@ n_matches = max(len(control) // len(treated), 1)
 # Perform propensity score matching
 matched_df = match_propensity_scores(treated, control, score_col='propensity_score', n_matches=n_matches)
 
-# Create matched feature matrix and target using top 40 features
-X_matched = matched_df[top_40_features]
+# Create matched feature matrix and target using selected features
+X_matched = matched_df[X_selected.columns]
 y_matched = matched_df['HEPATIC_ART_THROM']
 
 # Split dataset into training and test sets
@@ -151,6 +141,7 @@ print(f"\nClassification Report after adjusting threshold to {threshold}:")
 print(classification_report(y_test, y_pred_adjusted))
 print("Adjusted Model Accuracy:", accuracy_score(y_test, y_pred_adjusted))
 
+
 # Hosmer-Lemeshow Test with Plotting
 def hosmer_lemeshow_test(y_true, y_pred_prob, g=10):
     data = pd.DataFrame({'y_true': y_true, 'y_pred_prob': y_pred_prob})
@@ -160,7 +151,7 @@ def hosmer_lemeshow_test(y_true, y_pred_prob, g=10):
     n = data.groupby('cut').size()
     hl_stat = np.sum((obs - exp) ** 2 / (exp * (1 - exp / n)))
     p_value = chi2.sf(hl_stat, g - 2)
-    
+
     # Plotting observed vs. expected
     plt.figure(figsize=(10, 6))
     plt.scatter(exp, obs, color='blue', label='Observed')
@@ -172,6 +163,7 @@ def hosmer_lemeshow_test(y_true, y_pred_prob, g=10):
     plt.show()
 
     return hl_stat, p_value
+
 
 hl_stat, hl_p_value = hosmer_lemeshow_test(y_test, y_pred_prob)
 
