@@ -1,0 +1,5 @@
+I conducted both logistic regression and XGBoost models using propensity score matching (PSM). While the logistic regression model demonstrated a satisfactory ROC curve, the Hosmer-Lemeshow (H-L) goodness-of-fit test yielded an insignificant result (p-value remained 0 even after rounding to ten decimal places). In contrast, the XGBoost model exhibited favorable performance in both metrics.
+
+Several issues arose during the modeling process:
+Primarily, the large dataset and high dimensionality posed significant computational challenges. Attempts to convert categorical variables using techniques like pd.get_dummies resulted in memory errors. As a consequence, I limited the categorical variables to "ABO" and "GENDER" and excluded others from the analysis.
+Additionally, LASSO feature selection retained 67 variables, which may be considered a relatively large number. However, efforts to reduce the feature space by further pruning variables led to a decline in both the ROC curve and H-L goodness-of-fit, indicating potential overfitting or loss of important information.
