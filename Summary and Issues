@@ -1,6 +1,6 @@
 Modifications:
 (1) Vairables which would be used to the train model have been screened further, and the ones came after HAT were deleted.
-(2) Youdex index has been used in PSM model to find out the best cut-off value of classification.
+(2) Youdex index has been introduced in PSM model to find out the best cut-off value of classification.
 (3) Some modifications were made to induce model convergence.
 
 Issues:
