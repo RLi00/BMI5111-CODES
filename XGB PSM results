@@ -1,27 +1,29 @@
-Selected features by Lasso: ['NUM_PREV_TX', 'MELD_DIFF_REASON_CD', 'ABO', 'FUNC_STAT_TCR', 'DIAB', 'INIT_STAT', 'REM_CD', 'END_STAT', 'EXC_DIAG_ID', 'ETHNICITY', 'PT_CODE', 'REGION', 'CITIZENSHIP', 'WL_ID_CODE', 'ARTIFICIAL_LI_TCR', 'PORTAL_VEIN_TCR', 'INIT_ASCITES', 'INIT_ENCEPH', 'INIT_MELD_PELD_LAB_SCORE', 'FINAL_SERUM_SODIUM', 'TX_PROCEDUR_TY', 'FUNC_STAT_TRR', 'MED_COND_TRR', 'PRI_PAYMENT_TRR', 'MALIG_TRR', 'ARTIFICIAL_LI_TRR', 'OTH_LIFE_SUP_TRR', 'PORTAL_VEIN_TRR', 'TIPSS_TRR', 'COD', 'GTIME', 'PSTATUS', 'FUNC_STAT_TRF', 'AMIS', 'BMIS', 'DA1', 'DA2', 'DB2', 'DDR1', 'DDR2', 'RB2', 'RDR2', 'TRTREJ1Y', 'AGE_DON', 'COD_CAD_DON', 'DEATH_MECH_DON', 'ETHCAT_DON', 'NON_HRT_DON', 'BLOOD_INF_DON', 'OTHER_INF_DON', 'PT_STEROIDS_DON', 'TBILI_DON', 'VASODIL_DON', 'CLIN_INFECT_DON', 'HIST_CIG_DON', 'HIST_COCAINE_DON', 'DIABETES_DON', 'HIST_HYPERTENS_DON', 'INTRACRANIAL_CANCER_DON', 'HIST_CANCER_DON', 'HYPERTENS_DUR_DON', 'PT_OTH_DON', 'HEPARIN_DON', 'HGT_CM_DON_CALC', 'WGT_KG_DON_CALC', 'TBILI_TX', 'ALBUMIN_TX', 'MELD_PELD_LAB_SCORE', 'EVER_APPROVED', 'EXC_EVER', 'HEP_DENOVO', 'HEP_RECUR', 'RECUR_DISEASE', 'REJ_ACUTE', 'INFECT', 'DIFFUSE_CHOLANG', 'OTHER_VASC_THROMB', 'PRI_NON_FUNC', 'REJ_CHRONIC', 'GRF_STAT', 'LOS', 'DISTANCE', 'RECOV_OUT_US', 'TATTOOS', 'LI_BIOPSY', 'CARDARREST_NEURO', 'DONOR_ID', 'MACRO_FAT_LI_DON', 'HISTORY_MI_DON', 'LV_EJECT_DON', 'HEMATOCRIT_DON', 'LISTYR', '_t']
+Selected features by Lasso: ['NUM_PREV_TX', 'MELD_DIFF_REASON_CD', 'ABO', 'HGT_CM_TCR', 'FUNC_STAT_TCR', 'DIAB', 'INIT_STAT', 'REM_CD', 'EXC_DIAG_ID', 'ETHNICITY', 'ETHCAT', 'PT_CODE', 'REGION', 'CITIZENSHIP', 'BW6', 'DR51_2', 'DQ2', 'WL_ID_CODE', 'ARTIFICIAL_LI_TCR', 'PORTAL_VEIN_TCR', 'INIT_ASCITES', 'INIT_ENCEPH', 'INIT_MELD_PELD_LAB_SCORE', 'FINAL_SERUM_SODIUM', 'TX_PROCEDUR_TY', 'MED_COND_TRR', 'PRI_PAYMENT_TRR', 'ARTIFICIAL_LI_TRR', 'PORTAL_VEIN_TRR', 'PSTATUS', 'BMIS', 'DA1', 'DB2', 'DDR1', 'DDR2', 'RB2', 'RDR2', 'TRTREJ6M', 'AGE_DON', 'COD_CAD_DON', 'DEATH_MECH_DON', 'NON_HRT_DON', 'BLOOD_INF_DON', 'OTHER_INF_DON', 'PT_STEROIDS_DON', 'CLIN_INFECT_DON', 'HIST_COCAINE_DON', 'DIABETES_DON', 'HIST_HYPERTENS_DON', 'INTRACRANIAL_CANCER_DON', 'HIST_CANCER_DON', 'PT_OTH_DON', 'HEPARIN_DON', 'HGT_CM_DON_CALC', 'WGT_KG_DON_CALC', 'TBILI_TX', 'ALBUMIN_TX', 'EVER_APPROVED', 'EXC_EVER', 'GRF_STAT', 'LOS', 'DISTANCE', 'MALIG', 'BMI_CALC', 'RECOV_OUT_US', 'TATTOOS', 'LI_BIOPSY', 'CARDARREST_NEURO', 'DONOR_ID', 'MACRO_FAT_LI_DON', 'HISTORY_MI_DON', 'LV_EJECT_DON', 'HEMATOCRIT_DON', 'TX_YEAR', '_t']
 Fitting 3 folds for each of 10 candidates, totalling 30 fits
-Best parameters found:  {'subsample': 1.0, 'n_estimators': 200, 'min_child_weight': 1, 'max_depth': 5, 'learning_rate': 0.1, 'gamma': 0, 'colsample_bytree': 1.0}
+Best parameters found:  {'subsample': 0.8, 'n_estimators': 200, 'min_child_weight': 1, 'max_depth': 5, 'learning_rate': 0.1, 'gamma': 0, 'colsample_bytree': 0.8}
 
 Classification Report:
               precision    recall  f1-score   support
 
-         0.0       0.95      0.96      0.96      1071
-         1.0       0.96      0.95      0.95      1008
+         0.0       0.93      0.95      0.94      1086
+         1.0       0.94      0.92      0.93      1032
 
-    accuracy                           0.96      2079
-   macro avg       0.96      0.96      0.96      2079
-weighted avg       0.96      0.96      0.96      2079
+    accuracy                           0.93      2118
+   macro avg       0.93      0.93      0.93      2118
+weighted avg       0.93      0.93      0.93      2118
 
-Model Accuracy: 0.9557479557479558
+Model Accuracy: 0.9329556185080264
 
 Classification Report after adjusting threshold to 0.3:
               precision    recall  f1-score   support
 
-         0.0       0.96      0.93      0.94      1071
-         1.0       0.93      0.95      0.94      1008
+         0.0       0.94      0.91      0.93      1086
+         1.0       0.91      0.94      0.92      1032
 
-    accuracy                           0.94      2079
-   macro avg       0.94      0.94      0.94      2079
-weighted avg       0.94      0.94      0.94      2079
+    accuracy                           0.93      2118
+   macro avg       0.93      0.93      0.93      2118
+weighted avg       0.93      0.93      0.93      2118
 
-Adjusted Model Accuracy: 0.9432419432419432
+Adjusted Model Accuracy: 0.9254013220018886
+Hosmer-Lemeshow Statistic: 18.7557
+Hosmer-Lemeshow p-value: 0.0162
