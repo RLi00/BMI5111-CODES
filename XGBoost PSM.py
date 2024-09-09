@@ -20,7 +20,9 @@ df = pd.read_csv(r"C:\Users\lenovo\Desktop\Liver data.csv", low_memory=False)
 # Convert categorical variables to numeric
 df['GENDER'] = df['GENDER'].map({'M': 0, 'F': 1})
 df['ABO'] = df['ABO'].map({'A': 1, 'B': 2, 'AB': 3, 'O': 4})
-df = df.drop(columns=['COD_WL'])
+df = df.drop(columns=['COD_WL', 'BILIARY', 'DIFFUSE_CHOLANG', 'GRF_FAIL_CAUSE_OSTXT', 'HEP_DENOVO', 'HEP_RECUR',
+                      'HEPATIC_OUT_OBS', 'INFECT', 'OTHER_VASC_THROMB', 'PORTAL_VEIN_THROM', 'PRI_GRF_FAIL',
+                      'PRI_NON_FUNC', 'RECUR_DISEASE', 'REJ_ACUTE', 'REJ_CHRONIC', 'VASC_THROMB', 'TRTREJ1Y'])
 
 # Retain columns ARGININE_DON and HEPATIC_ART_THROM，and delete all rows containing missing values in these two columns
 df = df.dropna(subset=['ARGININE_DON', 'HEPATIC_ART_THROM'])
@@ -139,7 +141,6 @@ print(f"\nClassification Report after adjusting threshold to {threshold}:")
 print(classification_report(y_test, y_pred_adjusted))
 print("Adjusted Model Accuracy:", accuracy_score(y_test, y_pred_adjusted))
 
-
 # Hosmer-Lemeshow Test
 def hosmer_lemeshow_test(y_true, y_pred_prob, g=10):
     data = pd.DataFrame({'y_true': y_true, 'y_pred_prob': y_pred_prob})
@@ -159,8 +160,7 @@ def hosmer_lemeshow_test(y_true, y_pred_prob, g=10):
     plt.title('Hosmer-Lemeshow Test Observed vs. Expected')
     plt.title(f'Hosmer-Lemeshow Test: Observed vs. Expected (p-value = {p_value:.4f})')
     plt.legend()
-    plt.show()
-
+    plt.show(block=False)
     return hl_stat, p_value
 
 
