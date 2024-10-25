@@ -1,0 +1,371 @@
+import numpy as np
+import pandas as pd
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import SimpleImputer, IterativeImputer
+from sklearn.linear_model import LogisticRegression, LassoCV
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import StandardScaler
+
+# Load data
+df = pd.read_csv(r"C:\Users\lenovo\Desktop\Liver data.csv", low_memory=False)
+
+# Exclude post-exposure variables
+post_exposure_vars = [
+                  'ACADEMIC_LEVEL_TRR', 'ACADEMIC_PRG_TCR', 'ACADEMIC_PRG_TRR', 'ACUTE_REJ_EPI', 'ADMISSION_DATE',
+                  'AGE', 'AGE_GROUP', 'AMIS', 'ARTIFICIAL_LI_TCR', 'ARTIFICIAL_LI_TRR', 'ASCITES_TCR', 'ASCITES_TRR_OLD', 'BILIARY',
+                  'BMI_CALC', 'BW4', 'BW6', 'C1', 'C2', 'CITIZEN_COUNTRY', 'CITIZENSHIP', 'CITIZENSHIP_DON',
+                  'COD', 'COD_OSTXT', 'COD_OSTXT_WL', 'COD_WL', 'COD2', 'COD2_OSTXT', 'COD3', 'COD3_OSTXT', 'COMPOSITE_DEATH_DATE',
+                  'CREAT_TX', 'CTR_CODE', 'DATA_TRANSPLANT', 'DATA_WAITLIST', 'DAYSWAIT_CHRON', 'DEATH_DATE', 'DGN_OSTXT_TCR',
+                  'DGN_TCR', 'DGN2_OSTXT_TCR', 'DGN2_TCR', 'DIAB', 'DIAG', 'DIAG_OSTXT', 'DIAL_TX', 'DIFFUSE_CHOLANG',
+                  'DISCHARGE_DATE', 'DISTANCE', 'DON_TY', 'DONATION_DON', 'DQ1', 'DQ2', 'DR51', 'DR51_2', 'DR52', 'DR52_2', 'DR53', 'DR53_2',
+                  'EDUCATION', 'END_BMI_CALC', 'END_DATE', 'END_OPO_CTR_CODE', 'END_STAT', 'ETHCAT', 'DEAD', 'EXC_OTHER_DIAG', 'EXC_CASE',
+                  'FINAL_ALBUMIN', 'FINAL_ASCITES', 'FINAL_CTP_SCORE', 'FREE_DON', 'FUNC_STAT_TCR', 'FUNC_STAT_TRF', 'FUNC_STAT_TRR', 'GENDER',
+                  'GRF_FAIL_CAUSE_OSTXT', 'GRF_STAT', 'GSTATUS', 'GTIME', 'HBEAB_OLD',
+                  'HBV_SURF_TOTAL', 'HCV_NAT', 'HCV_SEROSTATUS', 'HEP_DENOVO', 'HEP_RECUR', 'HEPATIC_OUT_OBS', 'HEPD_OLD',
+                  'HGT_CM_CALC', 'HGT_CM_TCR', 'HIV_NAT', 'HIV_SEROSTATUS', 'HMO_PPO_DON', 'IABP', 'INACT_REASON_CD', 'INFECT',
+                  'INIT_ALBUMIN', 'INIT_ASCITES', 'INIT_BILIRUBIN', 'INIT_BMI_CALC', 'INIT_CTP_SCORE', 'INIT_DATE',
+                  'INIT_DIALYSIS_PRIOR_WEEK', 'INIT_ENCEPH', 'INIT_HGT_CM', 'INIT_INR', 'INIT_MELD_OR_PELD', 'INIT_MELD_PELD_LAB_SCORE',
+                  'INIT_OPO_CTR_CODE', 'INIT_SERUM_CREAT', 'INIT_SERUM_SODIUM', 'INIT_STAT', 'INIT_WGT_KG', 'INOTROPES', 'INR_TX',
+                  'LIFE_SUP_TCR', 'LIFE_SUP_TRR', 'LISTING_CTR_CODE', 'LISTYR', 'LITYP', 'LIV_DON_TY', 'LIV_DON_TY_OSTXT',
+                  'LOS', 'MALIG_OSTXT_TRR', 'MALIG_TCR', 'MALIG_TRR', 'MALIG_TY_TRR', 'MED_COND_TRR', 'MEDICAID_DON',
+                  'MEDICARE_DON', 'MELD_PELD_LAB_SCORE', 'MRCREATG_OLD', 'MULTIORG', 'MUSCLE_WAST_TCR', 'NEOADJUVANT_THERAPY_TCR',
+                  'NUM_PREV_TX', 'ON_VENT_TRR', 'OPO_CTR_CODE', 'OTH_LIFE_SUP_OSTXT_TCR', 'OTH_LIFE_SUP_TCR', 'OTH_LIFE_SUP_TRR',
+                  'OTHER_VASC_THROMB', 'PERM_STATE_TRR', 'PGE', 'PORTAL_VEIN_TCR', 'PORTAL_VEIN_THROM', 'PORTAL_VEIN_TRR',
+                  'PREV_AB_SURG_TCR', 'PREV_AB_SURG_TRR', 'PREV_PI_TX_TCR_ARCHIVE', 'PREV_TX', 'PREV_TX_ANY', 'PREV_TX_DATE',
+                  'PRI_GRF_FAIL', 'PRI_NON_FUNC', 'PRI_PAYMENT_CTRY_DON', 'PRI_PAYMENT_CTRY_TCR', 'PRI_PAYMENT_CTRY_TRR',
+                  'PRI_PAYMENT_DON', 'PRI_PAYMENT_TCR', 'PRI_PAYMENT_TRR', 'PRIV_INS_DON', 'PRVTXDIF', 'PSTATUS', 'PT_CODE',
+                  'PT_OTH_DON', 'PTIME', 'PX_NON_COMPL', 'PX_STAT', 'PX_STAT_DATE', 'RA1', 'RA2', 'RB1', 'RB2', 'RDR1',
+                  'RDR2', 'RECUR_DISEASE', 'REFERRAL_DATE', 'REGION', 'REJ_ACUTE', 'REJ_CHRONIC', 'REM_CD', 'RETXDATE',
+                  'SELF_DON', 'SHARE_TY', 'STATUS_DDR', 'STATUS_LDR', 'STATUS_TCR', 'STATUS_TRR', 'TBILI_TX', 'TIPSS_TCR',
+                  'TIPSS_TRR', 'TOT_SERUM_ALBUM', 'TRR_ID_CODE', 'TRTREJ1Y', 'TRTREJ6M', 'TX_MELD', 'TX_PROCEDUR_TY',
+                  'TX_YEAR', 'TXHRT', 'TXINT', 'TXKID', 'TXLIV', 'TXLNG', 'TXPAN', 'TXVCA', 'VAD_TAH', 'VAL_DT_DDR', 'VAL_DT_LDR',
+                  'VAL_DT_TCR', 'VAL_DT_TRR', 'VASC_THROMB', 'VENTILATOR_TCR', 'WGT_KG_CALC', 'WGT_KG_TCR', 'WL_ID_CODE',
+                  'WLHL', 'WLHR', 'WLIN', 'WLKI', 'WLKP', 'WLLI', 'WLLU', 'WLPA', 'WLPI', 'WLVC', 'WORK_INCOME_TCR',
+                  'WORK_INCOME_TRR', 'YR_ENTRY_US_TCR', 'RECOV_OUT_US', 'RECOV_COUNTRY', 'RECOVERY_DATE_DON',
+                  'COLD_ISCH', 'LI_BIOPSY']
+
+df = df.drop(columns=post_exposure_vars)
+df['TX_DATE'] = pd.to_datetime(df['TX_DATE'], errors='coerce')
+df['GRF_FAIL_DATE'] = pd.to_datetime(df['GRF_FAIL_DATE'], errors='coerce')
+df = df.dropna(subset=['ARGININE_DON'])
+# 使用多重插补处理缺失值
+# 这里使用 IterativeImputer 进行多重插补
+imputer = IterativeImputer(max_iter=10, random_state=0)
+date_df = df[['TX_DATE', 'GRF_FAIL_DATE']].apply(lambda x: x.astype('int64') / 10**9)  # 转换为秒时间戳以便插补
+# 将时间戳中无效值（如负值）转换为 NaN
+date_df = date_df.where(date_df > 0, np.nan)
+# 插补缺失值
+imputed_dates = imputer.fit_transform(date_df)
+df['TX_DATE'] = pd.to_datetime(imputed_dates[:, 0], unit='s')
+df['GRF_FAIL_DATE'] = pd.to_datetime(imputed_dates[:, 1], unit='s')
+# 计算时间间隔并转换为以年为单位的时间段
+df['Time_Interval_Years'] = (df['GRF_FAIL_DATE'] - df['TX_DATE']).dt.days / 365.25
+# Remove variables with more than 50% missing values
+feature_threshold = 0.5
+column_to_keep = df['HEPATIC_ART_THROM']
+df = df.dropna(thresh=int((1 - feature_threshold) * len(df)), axis=1)
+
+# 将保留的变量重新加回 DataFrame
+df['HEPATIC_ART_THROM'] = column_to_keep
+
+# Define numeric and categorical variables
+original_num_variables = [
+    'WGT_KG_TCR', 'HGT_CM_TCR', 'BMI_TCR', 'INIT_WGT_KG', 'INIT_HGT_CM', 'DAYSWAIT_CHRON', 'INIT_AGE',
+    'INIT_BMI_CALC', 'END_BMI_CALC', 'INIT_ALBUMIN', 'INIT_BILIRUBIN', 'INIT_INR', 'INIT_MELD_PELD_LAB_SCORE',
+    'INIT_SERUM_CREAT', 'INIT_SERUM_SODIUM', 'INIT_CTP_SCORE', 'FINAL_ALBUMIN', 'FINAL_BILIRUBIN',
+    'FINAL_INR', 'FINAL_MELD_PELD_LAB_SCORE', 'FINAL_SERUM_CREAT', 'FINAL_SERUM_SODIUM', 'FINAL_CTP_SCORE',
+    'PTIME', 'DA1', 'DA2', 'DB1', 'DB2', 'DDR1', 'DDR2', 'RA1', 'RA2', 'RB1', 'RB2', 'RDR1', 'RDR2',
+    'AGE_DON', 'BUN_DON', 'CREAT_DON', 'SGOT_DON', 'SGPT_DON', 'TBILI_DON', 'CANCER_FREE_INT_DON',
+    'HGT_CM_DON_CALC', 'WGT_KG_DON_CALC', 'BMI_DON_CALC', 'CREAT_TX', 'TBILI_TX', 'INR_TX', 'ALBUMIN_TX',
+    'MELD_PELD_LAB_SCORE', 'LOS', 'AGE', 'DIAG', 'DISTANCE', 'COLD_ISCH', 'HGT_CM_CALC', 'WGT_KG_CALC',
+    'BMI_CALC', 'DIS_SGOT', 'DIS_ALKPHOS', 'MACRO_FAT_LI_DON', 'MICRO_FAT_LI_DON', 'LV_EJECT_DON', 'PH_DON',
+    'HEMATOCRIT_DON', 'Time_Interval_Years'
+]
+
+num_variables = list(set(df.columns).intersection(set(original_num_variables)))
+Target = ['ARGININE_DON', 'HEPATIC_ART_THROM']
+cat_variables = list(set(list(df.columns)) - set(original_num_variables) - set(Target))
+
+# Count the different numbers of values of lists
+unique_value_counts = df[cat_variables].nunique()
+
+# 筛选出不同值数量大于等于 10 的列
+columns_with_10_or_more_unique = unique_value_counts[unique_value_counts >= 10]
+
+# 将满足条件的列名生成一个 list
+columns_to_select = columns_with_10_or_more_unique.index.tolist()
+
+# 更新 cat_variables，去掉有太多不同值的列
+cat_variables = list(set(cat_variables) - set(columns_to_select))
+
+# 选择所有变量
+all_variables = cat_variables + num_variables + Target
+df = df[all_variables]
+
+# Convert categorical variables to dummy variables
+df = pd.get_dummies(df, columns=cat_variables, drop_first=True)
+
+# Fill missing values
+imputer = SimpleImputer(strategy='mean')
+df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+
+# Standardize numerical variables
+scaler = StandardScaler()
+num_variables = list(set(num_variables) - {'Time_Interval_Years'})
+df[num_variables] = scaler.fit_transform(df[num_variables])
+
+# **模型构建和预测步骤**
+# Separate independent and dependent variables
+X = df.drop(columns=['ARGININE_DON'])
+y = df['ARGININE_DON']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# 增加Lasso的正则化力度调整
+lasso = LassoCV(cv=5, random_state=42, max_iter=10000, alphas=[0.01, 0.05, 0.1, 0.5, 1.0])
+lasso.fit(X_train, y_train)
+
+# Get the selected features from Lasso
+selected_features = X_train.columns[(lasso.coef_ != 0)]
+print(f"Selected features by Lasso with updated alphas: {selected_features}")
+
+# Train and test using only the selected features
+X_train_lasso = X_train[selected_features]
+X_test_lasso = X_test[selected_features]
+
+# 生成新的 DataFrame，仅包含选中的 features
+selected_features = list(selected_features)
+selected_features.extend(Target)
+selected_df = df[selected_features]
+
+# 只保留 HEPATIC_ART_THROM 列值为 0 或 1 的 samples
+# 从 selected_df 中筛选 HEPATIC_ART_THROM 列为 0 或 1 的行，并创建独立副本
+df = selected_df[selected_df['HEPATIC_ART_THROM'].isin([0, 1])].copy()
+
+X = df.drop(columns=['ARGININE_DON'])
+y = df['ARGININE_DON']
+
+# Calculate propensity scores with logistic regression
+log_reg = LogisticRegression(solver='liblinear', max_iter=1000)
+log_reg.fit(X, y)
+
+# Generate propensity score and add it into original dataset
+df['propensity_score'] = log_reg.predict_proba(X)[:, 1]
+
+# Separate treated and control groups
+treated = df[df['ARGININE_DON'] == 1]
+control = df[df['ARGININE_DON'] == 0]
+
+# Use 1:1 nearest neighbor matching
+nn = NearestNeighbors(n_neighbors=1)
+nn.fit(control[['propensity_score']])
+
+# Find nearest control samples
+distances, indices = nn.kneighbors(treated[['propensity_score']])
+
+# Apply caliper
+caliper = 0.1
+matched_indices = indices[distances.max(axis=1) <= caliper]
+
+# Extract matched samples
+matched_control = control.iloc[matched_indices.flatten()]
+matched_data = pd.concat([treated.iloc[:len(matched_indices)], matched_control])
+
+# Print the matching results
+print(f"Matched treated samples: {len(treated)}, Matched control samples: {len(matched_control)}")
+
+# 计算事件数（例如 HEPATIC_ART_THROM 列的总和）
+events_count = matched_data['HEPATIC_ART_THROM'].sum()
+
+# 计算总观察年数（Time_Interval_Years 的总和）
+total_time_interval = matched_data['Time_Interval_Years'].sum()
+
+# 计算 IRR（事件发生率）
+irr = events_count / total_time_interval
+print(f"Incident Rate Ratio (IRR): {irr}")
+
+# 或者，如果需要估计相对于某个基线组的相对IRR，可以使用Poisson回归模型进一步计算
+import statsmodels.api as sm
+
+# 自变量设置（以 `propensity_score` 和其他选择的协变量为控制变量）
+X_irr = sm.add_constant(matched_data[['propensity_score', 'Time_Interval_Years'] + selected_features])
+y_irr = matched_data['HEPATIC_ART_THROM']
+
+# 进行 Poisson 回归模型计算 IRR
+poisson_model = sm.GLM(y_irr, X_irr, family=sm.families.Poisson()).fit()
+print(poisson_model.summary())
+
+# IRR 估计量和置信区间
+irr_estimate = np.exp(poisson_model.params)
+irr_conf_int = np.exp(poisson_model.conf_int())
+print(f"\nIRR Estimate: \n{irr_estimate}")
+print(f"\nIRR Confidence Interval: \n{irr_conf_int}")
+
+
+
+
+import pandas as pd
+import numpy as np
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression, LassoCV
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, accuracy_score, roc_auc_score
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc
+import statsmodels.api as sm
+from statsmodels.genmod.families import Poisson
+from statsmodels.genmod.families.links import log as log_link
+
+# Load data
+df = pd.read_csv(r"C:\Users\lenovo\Desktop\Liver data.csv", low_memory=False)
+
+# Exclude post-exposure variables
+post_exposure_vars = [
+                  'ACADEMIC_LEVEL_TRR', 'ACADEMIC_PRG_TCR', 'ACADEMIC_PRG_TRR', 'ACUTE_REJ_EPI', 'ADMISSION_DATE',
+                  'AGE', 'AGE_GROUP', 'AMIS', 'ARTIFICIAL_LI_TCR', 'ARTIFICIAL_LI_TRR', 'ASCITES_TCR', 'ASCITES_TRR_OLD', 'BILIARY',
+                  'BMI_CALC', 'BW4', 'BW6', 'C1', 'C2', 'CITIZEN_COUNTRY', 'CITIZENSHIP', 'CITIZENSHIP_DON',
+                  'COD', 'COD_OSTXT', 'COD_OSTXT_WL', 'COD_WL', 'COD2', 'COD2_OSTXT', 'COD3', 'COD3_OSTXT', 'COMPOSITE_DEATH_DATE',
+                  'CREAT_TX', 'CTR_CODE', 'DATA_TRANSPLANT', 'DATA_WAITLIST', 'DAYSWAIT_CHRON', 'DEATH_DATE', 'DGN_OSTXT_TCR',
+                  'DGN_TCR', 'DGN2_OSTXT_TCR', 'DGN2_TCR', 'DIAB', 'DIAG', 'DIAG_OSTXT', 'DIAL_TX', 'DIFFUSE_CHOLANG',
+                  'DISCHARGE_DATE', 'DISTANCE', 'DON_TY', 'DONATION_DON', 'DQ1', 'DQ2', 'DR51', 'DR51_2', 'DR52', 'DR52_2', 'DR53', 'DR53_2',
+                  'EDUCATION', 'END_BMI_CALC', 'END_DATE', 'END_OPO_CTR_CODE', 'END_STAT', 'ETHCAT', 'DEAD', 'EXC_OTHER_DIAG', 'EXC_CASE',
+                  'FINAL_ALBUMIN', 'FINAL_ASCITES', 'FINAL_CTP_SCORE', 'FREE_DON', 'FUNC_STAT_TCR', 'FUNC_STAT_TRF', 'FUNC_STAT_TRR', 'GENDER',
+                  'GRF_FAIL_CAUSE_OSTXT', 'GRF_FAIL_DATE', 'GRF_STAT', 'GSTATUS', 'GTIME', 'HBEAB_OLD',
+                  'HBV_SURF_TOTAL', 'HCV_NAT', 'HCV_SEROSTATUS', 'HEP_DENOVO', 'HEP_RECUR', 'HEPATIC_OUT_OBS', 'HEPD_OLD',
+                  'HGT_CM_CALC', 'HGT_CM_TCR', 'HIV_NAT', 'HIV_SEROSTATUS', 'HMO_PPO_DON', 'IABP', 'INACT_REASON_CD', 'INFECT',
+                  'INIT_ALBUMIN', 'INIT_ASCITES', 'INIT_BILIRUBIN', 'INIT_BMI_CALC', 'INIT_CTP_SCORE', 'INIT_DATE',
+                  'INIT_DIALYSIS_PRIOR_WEEK', 'INIT_ENCEPH', 'INIT_HGT_CM', 'INIT_INR', 'INIT_MELD_OR_PELD', 'INIT_MELD_PELD_LAB_SCORE',
+                  'INIT_OPO_CTR_CODE', 'INIT_SERUM_CREAT', 'INIT_SERUM_SODIUM', 'INIT_STAT', 'INIT_WGT_KG', 'INOTROPES', 'INR_TX',
+                  'LIFE_SUP_TCR', 'LIFE_SUP_TRR', 'LISTING_CTR_CODE', 'LISTYR', 'LITYP', 'LIV_DON_TY', 'LIV_DON_TY_OSTXT',
+                  'LOS', 'MALIG_OSTXT_TRR', 'MALIG_TCR', 'MALIG_TRR', 'MALIG_TY_TRR', 'MED_COND_TRR', 'MEDICAID_DON',
+                  'MEDICARE_DON', 'MELD_PELD_LAB_SCORE', 'MRCREATG_OLD', 'MULTIORG', 'MUSCLE_WAST_TCR', 'NEOADJUVANT_THERAPY_TCR',
+                  'NUM_PREV_TX', 'ON_VENT_TRR', 'OPO_CTR_CODE', 'OTH_LIFE_SUP_OSTXT_TCR', 'OTH_LIFE_SUP_TCR', 'OTH_LIFE_SUP_TRR',
+                  'OTHER_VASC_THROMB', 'PERM_STATE_TRR', 'PGE', 'PORTAL_VEIN_TCR', 'PORTAL_VEIN_THROM', 'PORTAL_VEIN_TRR',
+                  'PREV_AB_SURG_TCR', 'PREV_AB_SURG_TRR', 'PREV_PI_TX_TCR_ARCHIVE', 'PREV_TX', 'PREV_TX_ANY', 'PREV_TX_DATE',
+                  'PRI_GRF_FAIL', 'PRI_NON_FUNC', 'PRI_PAYMENT_CTRY_DON', 'PRI_PAYMENT_CTRY_TCR', 'PRI_PAYMENT_CTRY_TRR',
+                  'PRI_PAYMENT_DON', 'PRI_PAYMENT_TCR', 'PRI_PAYMENT_TRR', 'PRIV_INS_DON', 'PRVTXDIF', 'PSTATUS', 'PT_CODE',
+                  'PT_OTH_DON', 'PTIME', 'PX_NON_COMPL', 'PX_STAT', 'PX_STAT_DATE', 'RA1', 'RA2', 'RB1', 'RB2', 'RDR1',
+                  'RDR2', 'RECUR_DISEASE', 'REFERRAL_DATE', 'REGION', 'REJ_ACUTE', 'REJ_CHRONIC', 'REM_CD', 'RETXDATE',
+                  'SELF_DON', 'SHARE_TY', 'STATUS_DDR', 'STATUS_LDR', 'STATUS_TCR', 'STATUS_TRR', 'TBILI_TX', 'TIPSS_TCR',
+                  'TIPSS_TRR', 'TOT_SERUM_ALBUM', 'TRR_ID_CODE', 'TRTREJ1Y', 'TRTREJ6M', 'TX_DATE', 'TX_MELD', 'TX_PROCEDUR_TY',
+                  'TX_YEAR', 'TXHRT', 'TXINT', 'TXKID', 'TXLIV', 'TXLNG', 'TXPAN', 'TXVCA', 'VAD_TAH', 'VAL_DT_DDR', 'VAL_DT_LDR',
+                  'VAL_DT_TCR', 'VAL_DT_TRR', 'VASC_THROMB', 'VENTILATOR_TCR', 'WGT_KG_CALC', 'WGT_KG_TCR', 'WL_ID_CODE',
+                  'WLHL', 'WLHR', 'WLIN', 'WLKI', 'WLKP', 'WLLI', 'WLLU', 'WLPA', 'WLPI', 'WLVC', 'WORK_INCOME_TCR',
+                  'WORK_INCOME_TRR', 'YR_ENTRY_US_TCR', 'RECOV_OUT_US', 'RECOV_COUNTRY', 'RECOVERY_DATE_DON',
+                  'COLD_ISCH', 'LI_BIOPSY']
+
+df = df.drop(columns=post_exposure_vars)
+df = df.dropna(subset=['ARGININE_DON'])
+
+# Remove variables with more than 50% missing values
+feature_threshold = 0.5
+column_to_keep = df['HEPATIC_ART_THROM']
+df = df.dropna(thresh=int((1 - feature_threshold) * len(df)), axis=1)
+
+# 将保留的变量重新加回 DataFrame
+df['HEPATIC_ART_THROM'] = column_to_keep
+
+# Define numeric and categorical variables
+original_num_variables = [
+    'WGT_KG_TCR', 'HGT_CM_TCR', 'BMI_TCR', 'INIT_WGT_KG', 'INIT_HGT_CM', 'DAYSWAIT_CHRON', 'INIT_AGE',
+    'INIT_BMI_CALC', 'END_BMI_CALC', 'INIT_ALBUMIN', 'INIT_BILIRUBIN', 'INIT_INR', 'INIT_MELD_PELD_LAB_SCORE',
+    'INIT_SERUM_CREAT', 'INIT_SERUM_SODIUM', 'INIT_CTP_SCORE', 'FINAL_ALBUMIN', 'FINAL_BILIRUBIN',
+    'FINAL_INR', 'FINAL_MELD_PELD_LAB_SCORE', 'FINAL_SERUM_CREAT', 'FINAL_SERUM_SODIUM', 'FINAL_CTP_SCORE',
+    'PTIME', 'DA1', 'DA2', 'DB1', 'DB2', 'DDR1', 'DDR2', 'RA1', 'RA2', 'RB1', 'RB2', 'RDR1', 'RDR2',
+    'AGE_DON', 'BUN_DON', 'CREAT_DON', 'SGOT_DON', 'SGPT_DON', 'TBILI_DON', 'CANCER_FREE_INT_DON',
+    'HGT_CM_DON_CALC', 'WGT_KG_DON_CALC', 'BMI_DON_CALC', 'CREAT_TX', 'TBILI_TX', 'INR_TX', 'ALBUMIN_TX',
+    'MELD_PELD_LAB_SCORE', 'LOS', 'AGE', 'DIAG', 'DISTANCE', 'COLD_ISCH', 'HGT_CM_CALC', 'WGT_KG_CALC',
+    'BMI_CALC', 'DIS_SGOT', 'DIS_ALKPHOS', 'MACRO_FAT_LI_DON', 'MICRO_FAT_LI_DON', 'LV_EJECT_DON', 'PH_DON',
+    'HEMATOCRIT_DON'
+]
+
+num_variables = list(set(df.columns).intersection(set(original_num_variables)))
+Target = ['ARGININE_DON','HEPATIC_ART_THROM']
+cat_variables = list(set(list(df.columns)) - set(original_num_variables) - set(Target))
+
+# Count the different numbers of values of lists
+unique_value_counts = df[cat_variables].nunique()
+
+# 筛选出不同值数量大于等于 10 的列
+columns_with_10_or_more_unique = unique_value_counts[unique_value_counts >= 10]
+
+# 将满足条件的列名生成一个 list
+columns_to_select = columns_with_10_or_more_unique.index.tolist()
+
+# 更新 cat_variables，去掉有太多不同值的列
+cat_variables = list(set(cat_variables) - set(columns_to_select))
+
+# 选择所有变量
+all_variables = cat_variables + num_variables + Target
+df = df[all_variables]
+
+# Convert categorical variables to dummy variables
+df = pd.get_dummies(df, columns=cat_variables, drop_first=True)
+
+# Fill missing values
+imputer = SimpleImputer(strategy='mean')
+df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+
+# Standardize numerical variables
+scaler = StandardScaler()
+df[num_variables] = scaler.fit_transform(df[num_variables])
+
+# **模型构建和预测步骤**
+# Separate independent and dependent variables
+X = df.drop(columns=['ARGININE_DON'])
+y = df['ARGININE_DON']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# 增加Lasso的正则化力度调整
+lasso = LassoCV(cv=5, random_state=42, max_iter=10000, alphas=[0.01, 0.05, 0.1, 0.5, 1.0])
+lasso.fit(X_train, y_train)
+
+# Get the selected features from Lasso
+selected_features = X_train.columns[(lasso.coef_ != 0)]
+print(f"Selected features by Lasso with updated alphas: {selected_features}")
+
+# Train and test using only the selected features
+X_train_lasso = X_train[selected_features]
+X_test_lasso = X_test[selected_features]
+
+# 生成新的 DataFrame，仅包含选中的 features
+selected_features = list(selected_features)
+selected_features.extend(Target)
+selected_df = df[selected_features]
+
+# 只保留 HEPATIC_ART_THROM 列值为 0 或 1 的 samples
+# 从 selected_df 中筛选 HEPATIC_ART_THROM 列为 0 或 1 的行，并创建独立副本
+df = selected_df[selected_df['HEPATIC_ART_THROM'].isin([0, 1])].copy()
+
+# 假设df已经加载，包含ARGININE_DON和其他变量
+X = df.drop(columns=['ARGININE_DON'])
+y = df['ARGININE_DON']
+
+# 2. 计算倾向得分
+ps_model = LogisticRegression(solver='liblinear')
+ps_model.fit(X, y)
+propensity_scores = ps_model.predict_proba(X)[:, 1]
+
+# 将倾向得分添加到数据集
+df['propensity_score'] = propensity_scores
+
+# 3. 计算IPTW权重
+# 计算IPTW权重并截断
+df['iptw_weight'] = np.where(df['ARGININE_DON'] == 1, 1 / df['propensity_score'], 1 / (1 - df['propensity_score']))
+df['iptw_weight'] = np.clip(df['iptw_weight'], 0.01, 50)
+
+# 创建WLS模型
+X_with_const = sm.add_constant(df[['ARGININE_DON'] + list(X.columns)])  # 添加常数项
+model = sm.WLS(df['HEPATIC_ART_THROM'], X_with_const, weights=df['iptw_weight'])
+results = model.fit()
+
+# 输出结果
+print(results.summary())
+
+
